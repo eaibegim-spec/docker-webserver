@@ -1,0 +1,39 @@
+services: 
+  webserver: 
+    image: nginx
+    ports:
+      - "8082:80"
+    container_name: mein_webserver
+    restart: unless-stopped
+    volumes: 
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql
+    container_name: meine_datenbank
+    environment:
+       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+       MYSQL_DATABASE: ${MYSQL_DATABASE}
+       MYSQL_USER: ${MYSQL_USER}
+       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes: 
+      - database_data:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: "10s"
+      timeout:  "5s"
+      retries:  5
+      start_period: "30s"
+    
+
+volumes: 
+  database_data:
+
+
+
+
+  
